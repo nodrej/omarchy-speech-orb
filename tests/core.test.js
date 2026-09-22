@@ -111,6 +111,18 @@ test("auto gain adapts to a hot mic too", () => {
   assert.ok(Level.normalize(-3, r.floorDb, r.ceilDb, 1) > 0.9)
 })
 
+test("auto gain keeps a usable range on a very noisy mic", () => {
+  // Measured on a laptop's built-in mic: silence peaks between -12 and -8 dBFS.
+  const ag = Level.newAutoGain()
+  for (let i = 0; i < 150; i++) Level.updateAutoGain(ag, -12 + (i % 5), 0.021)
+  for (let i = 0; i < 150; i++) Level.updateAutoGain(ag, i % 4 === 0 ? -11 : -2, 0.021)
+  const r = Level.autoRange(ag)
+  assert.ok(r.ceilDb <= 0, `ceiling ${r.ceilDb} above full scale`)
+  assert.ok(r.ceilDb - r.floorDb >= 10, "range collapsed")
+  assert.ok(Level.normalize(-11.5, r.floorDb, r.ceilDb, 1) < 0.15, "room noise reads as speech")
+  assert.ok(Level.normalize(-2, r.floorDb, r.ceilDb, 1) > 0.7, "speech barely moves the orb")
+})
+
 function frameParams(level, t) {
   const LF = new Float32Array(64).fill(level)
   return {

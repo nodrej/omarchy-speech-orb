@@ -207,6 +207,10 @@ Item {
   // listening -- never in the background.
   readonly property bool metering: mode === "listening" && micNode !== null
 
+  // Peaks received since the shell started; `status` reports it so a silent
+  // meter can be told apart from a quiet room.
+  property int _peakCount: 0
+
   PwObjectTracker {
     objects: root.metering ? [root.micNode] : []
   }
@@ -214,7 +218,10 @@ Item {
   PwNodePeakMonitor {
     node: root.micNode
     enabled: root.metering
-    onPeakChanged: orb.feedPeak(peak)
+    onPeakChanged: {
+      root._peakCount++
+      orb.feedPeak(peak)
+    }
   }
 
   // ---- placement ---------------------------------------------------------
@@ -231,6 +238,8 @@ Item {
     }
     return screens.length > 0 ? screens[0] : null
   }
+
+  readonly property var orbView: orb
 
   readonly property int labelRoom: settings.showLabel ? 18 : 0
 
@@ -293,7 +302,9 @@ Item {
     active: root.settingsOpen
     SettingsWindow {
       service: root
-      orb: orb
+      // Not `orb: orb` -- inside SettingsWindow that name is its own
+      // property, so the binding would read itself and stay null.
+      orb: root.orbView
       screen: root.targetScreen
     }
   }
@@ -342,6 +353,10 @@ Item {
         mic: root.micNode ? root.micNode.name : null,
         metering: root.metering,
         level: Math.round(orb.level * 1000) / 1000,
+        inputDb: Math.round(orb.inputDb),
+        range: [Math.round(orb.rangeFloorDb), Math.round(orb.rangeCeilDb)],
+        peaks: root._peakCount,
+        micBound: !!(root.micNode && root.micNode.audio),
         screen: root.targetScreen ? root.targetScreen.name : null,
         settings: Settings.diff(root.settings)
       })

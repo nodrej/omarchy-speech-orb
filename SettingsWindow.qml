@@ -39,6 +39,10 @@ PanelWindow {
 
   function close() { service.settingsOpen = false }
 
+  // Grace period for the "no signal" warning, which would otherwise flash
+  // for the moment before the first reading arrives.
+  property double openedAt: Date.now()
+
   // Fields that only mean something in some configurations are hidden in the
   // others, so the list only ever shows knobs that will visibly do something.
   function shown(key) {
@@ -159,6 +163,38 @@ PanelWindow {
             height: parent.height
             radius: parent.radius
             color: win.accent
+          }
+        }
+
+        // Refreshes the "no signal" check below; Date.now() is not reactive.
+        Timer {
+          id: clock
+          property double now: Date.now()
+          interval: 500
+          running: true
+          repeat: true
+          onTriggered: now = Date.now()
+        }
+
+        Text {
+          id: micProblem
+          readonly property bool silent: !!win.orb && win.service.metering
+            && clock.now - Math.max(win.orb.lastPeakMs, win.openedAt) > 1500
+          visible: text !== ""
+          width: parent.width
+          wrapMode: Text.WordWrap
+          color: Color.urgent
+          font.family: Style.font.family
+          font.pixelSize: Style.font.bodySmall
+          text: {
+            if (!win.orb) return ""
+            // PipeWire reports a peak only when it changes, so a mic pinned at
+            // full scale sends one reading and then goes quiet.
+            if (win.orb.clipping || (silent && win.orb.lastPeak >= 0.98))
+              return "Your microphone is clipping: its input is pinned at full volume, so the orb can't follow your voice. Lower the input volume in the Audio panel (or with wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 0.3)."
+            if (silent)
+              return "No signal from the microphone. Check the input device below, or that it isn't muted."
+            return ""
           }
         }
 
@@ -325,6 +361,7 @@ PanelWindow {
       FieldLabel { field: f; valueText: f ? win.fmt(f, win.s[f.key]) : "" }
 
       PanelSlider {
+        id: slider
         width: parent.width
         height: Style.space(18)
         minimum: f ? f.min : 0
@@ -334,6 +371,17 @@ PanelWindow {
         value: f ? win.s[f.key] : 0
         onMoved: function(v) { win.service.setValue(f.key, v) }
         onReleased: function(v) { win.service.setValue(f.key, v) }
+
+        // The slider takes wheel events for itself, which turns scrolling
+        // down this list into nudging whichever slider passes under the
+        // pointer. This layer sits on top, declines the wheel so it carries
+        // on up to the Flickable, and accepts no buttons, so clicks and drags
+        // still land on the slider underneath.
+        MouseArea {
+          anchors.fill: parent
+          acceptedButtons: Qt.NoButton
+          onWheel: function(wheel) { wheel.accepted = false }
+        }
       }
     }
   }

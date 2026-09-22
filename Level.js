@@ -40,6 +40,7 @@ var NOISE_SLOT_S = 0.1
 var NOISE_SLOTS = 30          // 3 s window
 var SPEECH_DECAY_DB_PER_S = 1.5
 var MIN_SPAN_DB = 20
+var MIN_RANGE_DB = 10
 
 function newAutoGain() {
   var slots = []
@@ -77,8 +78,15 @@ function autoRange(ag) {
   // A few dB of headroom over the noise keeps breathing and fan hum dark, and
   // the ceiling sits just under a typical speaking peak so normal speech can
   // reach the top without shouting.
+  //
+  // The ceiling never goes past 0 dBFS -- nothing can be louder than full
+  // scale -- and the floor gives way to keep MIN_RANGE_DB beneath it. Without
+  // that, a noisy mic (some laptop mics idle at -11 dBFS peak) pushed the
+  // floor to -3 and the ceiling to +11, so the orb could only move for speech
+  // that was already clipping.
   var floorDb = ag.noiseDb + 8
-  var ceilDb = Math.max(floorDb + 14, ag.speechDb - 3)
+  var ceilDb = Math.min(0, Math.max(floorDb + 14, ag.speechDb - 3))
+  floorDb = Math.min(floorDb, ceilDb - MIN_RANGE_DB)
   return { floorDb: floorDb, ceilDb: ceilDb }
 }
 

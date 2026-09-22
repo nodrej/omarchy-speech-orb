@@ -50,12 +50,29 @@ Item {
   property real rangeFloorDb: settings.floorDb
   property real rangeCeilDb: settings.ceilDb
 
+  // Share of recent readings at full scale (0..1), and whether that means the
+  // input is clipping. A mic whose gain is stacked too high -- common on
+  // laptops, where boost and capture gain multiply -- sits pinned at full
+  // scale, and the orb can do nothing useful with it. The settings window
+  // says so instead of leaving the orb mysteriously still.
+  property real clipRatio: 0
+  readonly property bool clipping: clipRatio > 0.7
+  property double lastPeakMs: 0
+  property real lastPeak: 0
+
   function feedPeak(peak) {
     var s = settings
+    // Some devices report peaks above 1.0 when clipping; anything past full
+    // scale is full scale, and must not drag the auto-gain floor up past it.
+    if (!(peak >= 0)) peak = 0
+    if (peak > 1) peak = 1
     var db = Level.toDb(peak)
     var now = Date.now()
     var dt = _lastPeakMs > 0 ? Math.min(0.2, (now - _lastPeakMs) / 1000) : 0.02
     _lastPeakMs = now
+    lastPeakMs = now
+    lastPeak = peak
+    clipRatio += ((peak >= 0.98 ? 1 : 0) - clipRatio) * (1 - Math.exp(-dt / 1.0))
     var lo = s.floorDb, hi = s.ceilDb
     if (s.autoGain) {
       Level.updateAutoGain(_autoGain, db, dt)
@@ -181,6 +198,9 @@ Item {
   }
 
   onModeChanged: {
+    clipRatio = 0
+    lastPeakMs = 0
+    lastPeak = 0
     if (!active) {
       level = 0
       _pending = 0
