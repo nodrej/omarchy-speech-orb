@@ -4,7 +4,7 @@ An [Omarchy](https://omarchy.org) shell plugin that shows a particle orb while
 you dictate with [voxtype](https://github.com/peteonrails/voxtype), and moves
 it with your voice in real time.
 
-![Four orbs (nebula, vortex, ring and burst patterns in different colour modes) beside the Speech Orb settings window](preview.png)
+![Speech Orb: four patterns (Galaxy, Party, Waveform, Calm) on a plain terminal, and the settings window with its live orb](preview.png)
 
 - **No perceptible lag.** The mic is metered straight from PipeWire, once per
   audio quantum (~21 ms), and loudness rises on the very next frame. There is
@@ -47,7 +47,17 @@ voxtype is listening, breathes while it transcribes, and fades out when it is
 done. It sits above everything, never takes focus, and clicks pass straight
 through it.
 
-Open the settings:
+### Opening the settings
+
+Click the **Speech Orb icon in the bar**, a small disc of dots on the right.
+It lights up while you dictate.
+
+- **Left click** opens the settings window.
+- **Right click** shows the orb on your live mic for 20 seconds, without
+  dictating.
+
+Don't want the icon? Turn off **Show icon in the bar** in the settings. You
+can still open them from a terminal or a keybinding:
 
 ```sh
 omarchy-shell speech-orb settings
@@ -70,6 +80,15 @@ Other commands:
 
 The microphone is only opened while the orb is showing: during a dictation,
 or while the settings window or a preview is up.
+
+## Screenshots
+
+| | |
+|---|---|
+| ![Galaxy preset: a pink-to-blue gradient vortex](screenshots/galaxy.png) | ![Party preset: a rainbow burst](screenshots/party.png) |
+| ![Waveform preset: the ring pattern](screenshots/waveform.png) | ![Calm preset: a slow sphere](screenshots/calm.png) |
+
+![The settings window beside the live orb](screenshots/settings.png)
 
 ## Configure
 
@@ -131,6 +150,7 @@ to the file apply as soon as you save it:
 | `offsetX` | `0` | -1200 – 1200 px — Nudge sideways |
 | `monitor` | `""` | text — Output name such as DP-1. Empty follows the focused monitor |
 | `showWhenTranscribing` | `true` | `true` / `false` — Stay up while transcribing |
+| `barIcon` | `true` | `true` / `false` — Click it for these settings. Hidden, use: omarchy-shell speech-orb settings |
 | `fadeMs` | `140` | 0 – 1000 ms — Fade |
 
 ### Sensitivity, briefly

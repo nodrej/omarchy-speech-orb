@@ -32,24 +32,51 @@ Item {
 
   readonly property string shellJsonPath: Quickshell.env("HOME") + "/.config/omarchy/shell.json"
 
+  // The shell persists shell.json asynchronously, so the file watch can
+  // report one of our own earlier writes after newer edits were made in
+  // memory. Adopting it would silently undo those edits. Reads that land
+  // shortly after a save are therefore ignored, and the file is read once
+  // more after the burst has settled.
+  property double _lastSaveMs: 0
+  readonly property int _echoWindowMs: 1500
+
+  Timer {
+    id: settleRead
+    interval: root._echoWindowMs + 100
+    onTriggered: shellFile.reload()
+  }
+
   function _readEntry(text) {
+    if (saveDebounce.running || Date.now() - _lastSaveMs < _echoWindowMs) {
+      settleRead.restart()
+      return
+    }
     try {
       var cfg = JSON.parse(text || "{}")
-      var list = Array.isArray(cfg.plugins) ? cfg.plugins : []
+      // With the bar icon placed, the plugin's entry lives in the bar layout
+      // (that is where the shell writes it back too); without it, in
+      // plugins[]. Check both, bar first, matching the shell's own lookup.
+      var list = []
+      var layout = cfg.bar && cfg.bar.layout ? cfg.bar.layout : {}
+      var sections = ["left", "center", "right"]
+      for (var s = 0; s < sections.length; s++) {
+        if (Array.isArray(layout[sections[s]])) list = list.concat(layout[sections[s]])
+      }
+      if (Array.isArray(cfg.plugins)) list = list.concat(cfg.plugins)
       for (var i = 0; i < list.length; i++) {
         if (list[i] && list[i].id === root.pluginId) {
-          // A save still in flight is newer than what is on disk.
-          if (!saveDebounce.running) root.settings = Settings.resolve(list[i])
+          root.settings = Settings.resolve(list[i])
           return
         }
       }
-      if (!saveDebounce.running) root.settings = Settings.defaults()
+      root.settings = Settings.defaults()
     } catch (e) {
       console.warn("speech-orb: could not parse shell.json:", e)
     }
   }
 
   FileView {
+    id: shellFile
     path: root.shellJsonPath
     preload: true
     watchChanges: true
@@ -92,6 +119,7 @@ Item {
         console.warn("speech-orb: no shell API; settings apply for this session only")
         return
       }
+      root._lastSaveMs = Date.now()
       root.shell.updateEntryInline(root.pluginId, Settings.diff(root.settings))
     }
   }
@@ -146,6 +174,12 @@ Item {
   }
 
   readonly property bool previewing: settingsOpen || ipcPreview
+
+  function togglePreview() {
+    ipcPreview = !ipcPreview
+    if (ipcPreview) previewTimeout.restart()
+    else previewTimeout.stop()
+  }
 
   readonly property string mode: {
     var s = vxState
@@ -276,11 +310,7 @@ Item {
     function toggleSettings(): void { root.settingsOpen = !root.settingsOpen }
 
     // Show the orb on the live mic for 20 seconds without dictating.
-    function preview(): void {
-      root.ipcPreview = !root.ipcPreview
-      if (root.ipcPreview) previewTimeout.restart()
-      else previewTimeout.stop()
-    }
+    function preview(): void { root.togglePreview() }
 
     // `omarchy-shell speech-orb set movement 1.5` -- any key from the
     // README's table. Prints ok, or why not.

@@ -8,10 +8,19 @@
   "repository": "https://github.com/nodrej/omarchy-speech-orb",
   "description": "A particle orb that appears while you dictate with voxtype and moves with your voice in real time. Six patterns, custom colors, and adjustable movement and mic sensitivity from a live settings window.",
   "kinds": [
-    "service"
+    "service",
+    "bar-widget"
   ],
   "entryPoints": {
-    "service": "SpeechOrb.qml"
+    "service": "SpeechOrb.qml",
+    "barWidget": "BarIcon.qml"
   },
-  "keepLoaded": true
+  "keepLoaded": true,
+  "barWidget": {
+    "displayName": "Speech Orb",
+    "description": "Opens the Speech Orb settings; lights up while you dictate.",
+    "category": "Audio",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
 }

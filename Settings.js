@@ -82,6 +82,8 @@ var schema = [
   { key: "monitor", group: "Placement", type: "string", def: "", label: "Monitor",
     hint: "Output name such as DP-1. Empty follows the focused monitor" },
   { key: "showWhenTranscribing", group: "Placement", type: "bool", def: true, label: "Stay up while transcribing" },
+  { key: "barIcon", group: "Placement", type: "bool", def: true, label: "Show icon in the bar",
+    hint: "Click it for these settings. Hidden, use: omarchy-shell speech-orb settings" },
   { key: "fadeMs", group: "Placement", type: "number", def: 140, min: 0, max: 1000, step: 10, label: "Fade", unit: "ms" }
 ]
 
