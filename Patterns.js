@@ -5,7 +5,7 @@
 // create(pattern, N) lays out N dots once; frame(st, p, out) moves them for one
 // frame and writes screen-space results into `out`. Nothing here touches a
 // Canvas, so the renderer stays one bucketing loop and every pattern shares
-// the same depth shading, outline and colour handling.
+// the same depth shading, outline and color handling.
 //
 // Coordinates are in orb units: x/y in roughly -1..1, y up, z toward the
 // viewer. The renderer maps them to pixels.
@@ -198,7 +198,7 @@ function emit(p, out, x, y, z, size, bright, rad, push) {
   var s = size * p.dotScale * (0.62 + 0.62 * d)
   var o = out.n++
   out.x[o] = x; out.y[o] = y; out.s[o] = s; out.a[o] = a
-  // Colour position 0..1, meaning depends on the colour mode.
+  // Color position 0..1, meaning depends on the color mode.
   var c = 0
   if (p.colorKind === 1) c = rad
   else if (p.colorKind === 2) c = push

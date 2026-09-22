@@ -49,7 +49,7 @@ test("diff saves only non-defaults", () => {
   assert.deepEqual(JSON.parse(JSON.stringify(Settings.diff(s))), { movement: 2 })
 })
 
-test("every preset is valid and is recognised after applying", () => {
+test("every preset is valid and is recognized after applying", () => {
   for (const p of Settings.presets) {
     for (const k of Object.keys(p.values)) {
       const f = Settings.field(k)

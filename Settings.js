@@ -26,7 +26,7 @@ var schema = [
     hint: "Keeps the dots legible over white windows" },
   { key: "showLabel", group: "Look", type: "bool", def: true, label: "Show \"listening\" label" },
 
-  // ---- colour
+  // ---- color
   { key: "colorMode", group: "Color", type: "enum", def: "theme", label: "Color mode",
     options: [
       { value: "theme",    label: "Theme",    tooltip: "Follow the Omarchy theme accent" },

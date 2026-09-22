@@ -4,7 +4,7 @@ import qs.Ui
 // Bar icon: the way into the settings, and a small "listening" light.
 //
 // Left click opens the settings window, right click toggles a 20 s preview
-// on the live mic. It lights up in the bar's active colour while the orb is
+// on the live mic. It lights up in the bar's active color while the orb is
 // listening. All state lives in the plugin's service, so every monitor's copy
 // of this icon agrees.
 BarWidget {

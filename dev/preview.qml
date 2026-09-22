@@ -38,7 +38,7 @@ Window {
     overrides = o
   }
 
-  // grabToImage skips the window colour, so give shots a real background.
+  // grabToImage skips the window color, so give shots a real background.
   Rectangle { anchors.fill: parent; color: "#12151a" }
 
   OrbView {

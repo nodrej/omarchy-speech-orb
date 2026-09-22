@@ -23,7 +23,7 @@ Item {
   // "listening" | "transcribing" | "idle"
   property string mode: "idle"
 
-  // Theme colours, pushed in by the host.
+  // Theme colors, pushed in by the host.
   property color themeAccent: "#7daea3"
   property color themeForeground: "#e5e5e5"
   property color themeWarn: "#f2cc4d"
@@ -38,7 +38,7 @@ Item {
   property real _swarm: 0
   property real _vortex: 0
 
-  // Loudest normalised level since the last frame.
+  // Loudest normalized level since the last frame.
   property real _pending: 0
   property bool _hasPending: false
   property double _lastPeakMs: 0
@@ -87,12 +87,12 @@ Item {
     _hasPending = true
   }
 
-  // ---- colours -----------------------------------------------------------
+  // ---- colors -----------------------------------------------------------
 
   function _vivid(c) {
     if (!settings.vivid) return c
     // Theme accents are often heavily desaturated; floor saturation and value
-    // so the dots read as emissive rather than grey, keeping the hue.
+    // so the dots read as emissive rather than gray, keeping the hue.
     return Qt.hsva(c.hsvHue < 0 ? 0.5 : c.hsvHue,
                    Math.max(c.hsvSaturation, 0.62), Math.max(c.hsvValue, 0.97), 1)
   }
@@ -107,12 +107,12 @@ Item {
     return Math.round(c.r * 255) + "," + Math.round(c.g * 255) + "," + Math.round(c.b * 255)
   }
 
-  // Number of colour steps a dot's colour position is quantised to. Each
+  // Number of color steps a dot's color position is quantized to. Each
   // step costs one fillStyle change per alpha level, so this stays small.
   readonly property int colorSteps: 10
   readonly property int alphaSteps: 12
 
-  // Colour-position kind for Patterns.emit: 0 flat, 1 radial, 2 loudness, 3 angle.
+  // Color-position kind for Patterns.emit: 0 flat, 1 radial, 2 loudness, 3 angle.
   readonly property int colorKind: {
     if (mode === "transcribing") return 0
     switch (settings.colorMode) {
@@ -123,7 +123,7 @@ Item {
     return 0
   }
 
-  // One "r,g,b" string per colour step, rebuilt once per frame (cheap: ten
+  // One "r,g,b" string per color step, rebuilt once per frame (cheap: ten
   // strings) so the rainbow can turn and the theme can change live.
   function _palette() {
     var s = settings, out = []
@@ -308,7 +308,7 @@ Item {
       var A = root.alphaSteps, C = root.colorKind === 0 ? 1 : root.colorSteps
       var NB = A * C
 
-      // Counting sort by (colour step, alpha step), so each fillStyle is set
+      // Counting sort by (color step, alpha step), so each fillStyle is set
       // once per bucket rather than once per dot. Canvas state changes, not
       // arithmetic, dominate the cost at a few thousand dots.
       for (var b = 0; b <= NB; b++) counts[b] = 0

@@ -11,8 +11,8 @@ it with your voice in real time.
   no smoothing on the way up and no delay line unless you ask for one.
 - **Six patterns.** Nebula, Sphere, Ring (your waveform wrapped into a
   circle), Vortex, Burst and Swarm.
-- **Your colours.** Follow the theme, or pick a solid colour, a gradient, a
-  colour that shifts with loudness, or a slowly turning rainbow.
+- **Your colors.** Follow the theme, or pick a solid color, a gradient, a
+  color that shifts with loudness, or a slowly turning rainbow.
 - **Tunable movement and sensitivity**, from a settings window where the orb
   is live on your mic, so you judge each change by talking.
 
