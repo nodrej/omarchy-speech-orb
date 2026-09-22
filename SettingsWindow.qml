@@ -39,6 +39,15 @@ PanelWindow {
 
   function close() { service.settingsOpen = false }
 
+  // Scrolls the settings list by one wheel event. Touchpads report smooth
+  // pixel deltas; mouse wheels report angle in 1/8 degree, 120 per notch.
+  function scrollList(wheel) {
+    var dy = wheel.pixelDelta.y !== 0 ? wheel.pixelDelta.y : wheel.angleDelta.y / 120 * Style.space(48)
+    var maxY = Math.max(0, scroller.contentHeight - scroller.height)
+    scroller.contentY = Math.max(0, Math.min(maxY, scroller.contentY - dy))
+    wheel.accepted = true
+  }
+
   // Grace period for the "no signal" warning, which would otherwise flash
   // for the moment before the first reading arrives.
   property double openedAt: Date.now()
@@ -373,14 +382,15 @@ PanelWindow {
         onReleased: function(v) { win.service.setValue(f.key, v) }
 
         // The slider takes wheel events for itself, which turns scrolling
-        // down this list into nudging whichever slider passes under the
-        // pointer. This layer sits on top, declines the wheel so it carries
-        // on up to the Flickable, and accepts no buttons, so clicks and drags
-        // still land on the slider underneath.
+        // down this list into nudging every slider that passes under the
+        // pointer. Declining the event here is not enough: Qt offers an
+        // unaccepted wheel to every item under the pointer, slider included.
+        // So this layer accepts it and scrolls the list itself. It takes no
+        // buttons, so clicks and drags still reach the slider underneath.
         MouseArea {
           anchors.fill: parent
           acceptedButtons: Qt.NoButton
-          onWheel: function(wheel) { wheel.accepted = false }
+          onWheel: function(wheel) { win.scrollList(wheel) }
         }
       }
     }
