@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "io.github.nodrej.speech-orb",
+  "name": "Speech Orb",
+  "version": "1.0.0",
+  "author": "nodrej",
+  "license": "MIT",
+  "repository": "https://github.com/nodrej/omarchy-speech-orb",
+  "description": "A particle orb that appears while you dictate with voxtype and moves with your voice in real time. Six patterns, custom colors, and adjustable movement and mic sensitivity from a live settings window.",
+  "kinds": [
+    "service"
+  ],
+  "entryPoints": {
+    "service": "SpeechOrb.qml"
+  },
+  "keepLoaded": true
+}
