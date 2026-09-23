@@ -35,7 +35,29 @@ function cs(x) { return SIN[((x * LUT_SCALE) + QUARTER) & LUT_MASK] }
 
 var KNEE = 0.78
 
-var names = ["nebula", "sphere", "ring", "vortex", "burst", "swarm"]
+var names = ["nebula", "sphere", "ring", "vortex", "burst", "swarm", "logo"]
+
+// The square Omarchy logo, read cell by cell off the 300x300 app icon
+// (/usr/share/pixmaps/omarchy.png): every 20 px cell of it is uniformly inside
+// or outside the mark, so this 15x15 grid is exact, not a tracing. Row 0 is
+// the top.
+var LOGO = [
+  "...............",
+  ".######.######.",
+  ".#......###..#.",
+  ".#.#########.#.",
+  ".#.#########.#.",
+  ".#.#########.#.",
+  ".#.#########.#.",
+  "...#########.#.",
+  ".#.#########.#.",
+  ".#.#########.#.",
+  ".#.#########.#.",
+  ".#.#########.#.",
+  ".#...........#.",
+  ".######.######.",
+  "........#......"
+]
 
 // Seeded so a pattern looks the same every time it appears, and so tests are
 // deterministic. mulberry32.
@@ -164,6 +186,26 @@ function create(pattern, N) {
       st.f[i] = Math.pow(r(), 0.8)
       st.jx[i] = (r() - 0.5) * 0.05; st.jy[i] = (r() - 0.5) * 0.05; st.jz[i] = (r() - 0.5) * 0.05
     }
+  } else if (pattern === "logo") {
+    // Every filled cell of the logo, then dots spread evenly across them with
+    // a random position inside the cell, so the mark reads as solid shapes
+    // made of dots rather than as a grid.
+    var cells = []
+    for (var gy = 0; gy < LOGO.length; gy++)
+      for (var gx = 0; gx < LOGO[gy].length; gx++)
+        if (LOGO[gy].charAt(gx) === "#") cells.push(gx, gy)
+    var G = LOGO.length, span = 1.62, cell = span / G
+    st.lx = A(); st.ly = A(); st.lz = A(); st.dx = A(); st.dy = A()
+    for (i = 0; i < N; i++) {
+      var c = ((r() * cells.length / 2) | 0) * 2
+      st.lx[i] = -span / 2 + (cells[c] + r()) * cell
+      st.ly[i] = span / 2 - (cells[c + 1] + r()) * cell
+      st.lz[i] = (r() - 0.5) * 0.08
+      // A private direction to scatter along when loud, so the logo
+      // sparkles apart instead of only scaling up as a block.
+      var ang = r() * Math.PI * 2
+      st.dx[i] = Math.cos(ang); st.dy[i] = Math.sin(ang)
+    }
   } else if (pattern === "swarm") {
     st.fx = A(); st.fy = A(); st.fz = A(); st.px = A(); st.py = A(); st.pz = A(); st.amp = A()
     for (i = 0; i < N; i++) {
@@ -183,7 +225,8 @@ function emit(p, out, x, y, z, size, bright, rad, push) {
   // canvas, where they used to be clipped into a hard square edge. Past KNEE
   // the distance is compressed so it approaches 1 but never reaches it, which
   // keeps the silhouette round at any setting.
-  var len = Math.sqrt(x * x + y * y)
+  // The logo is limited by its square instead, or its corners would round.
+  var len = p.squareLimit ? Math.max(Math.abs(x), Math.abs(y)) : Math.sqrt(x * x + y * y)
   if (len > KNEE) {
     var over = (len - KNEE) / (1 - KNEE)
     var k = (KNEE + (1 - KNEE) * (over / (1 + over))) / len
@@ -228,12 +271,14 @@ function frame(st, p, out) {
   p.cg = Math.cos(p.spin); p.sg = Math.sin(p.spin)
   var ta = Math.sin(p.t * 0.17) * 0.40 + 0.30
   p.st = Math.sin(ta); p.ct = Math.cos(ta)
+  p.squareLimit = st.pattern === "logo"
   switch (st.pattern) {
   case "sphere": sphere(st, p, out); break
   case "ring": ring(st, p, out); break
   case "vortex": vortex(st, p, out); break
   case "burst": burst(st, p, out); break
   case "swarm": swarm(st, p, out); break
+  case "logo": logo(st, p, out); break
   default: nebula(st, p, out)
   }
   return out
@@ -397,5 +442,36 @@ function swarm(st, p, out) {
     var size = st.dot[i] * (m === 1 ? 1 + push * 1.25 * p.grow : 1)
     var bright = (m === 2 ? 1 + push * 1.85 * p.glow : 1) * 1.1
     emit(p, out, p.rx, p.ry, p.rz / 0.62, size, bright, rad, push)
+  }
+}
+
+// The square Omarchy logo. It sways rather than spins -- a flat mark turned
+// edge-on would vanish -- and speaking pushes its pieces out from the centre,
+// so the gaps in the frame open up and the logo breathes apart with your
+// voice, while each dot also sparkles off along its own direction.
+function logo(st, p, out) {
+  var N = st.N, t = p.t, LF = p.LF
+  var sway = Math.sin(p.spin * 2.2) * 0.38
+  var cy = Math.cos(sway), sy = Math.sin(sway)
+  var tilt = Math.sin(t * 0.23) * 0.10
+  var ct = Math.cos(tilt), stl = Math.sin(tilt)
+  var jit = p.turb * 0.010
+  for (var i = 0; i < N; i++) {
+    var x = st.lx[i], y = st.ly[i], m = st.mode[i]
+    var rad = Math.sqrt(x * x + y * y) / 1.15
+    var push = LF[bin(p, rad)] * st.answer[i]
+    var grow = 1 + (m === 0 ? push * 0.22 : push * 0.06) * p.move
+    var spark = (m === 0 ? push * 0.07 : push * 0.02) * p.move
+    x = x * grow + st.dx[i] * spark + jit * sn(i * 1.3 + t * 2.1)
+    y = y * grow + st.dy[i] * spark + jit * sn(i * 0.7 - t * 1.7)
+    var z = st.lz[i]
+    // Sway about Y, then a slight nod about X.
+    var x2 = x * cy + z * sy
+    var z2 = z * cy - x * sy
+    var y2 = y * ct - z2 * stl
+    var z3 = y * stl + z2 * ct
+    var size = st.dot[i] * 0.85 * (m === 1 ? 1 + push * 1.1 * p.grow : 1)
+    var bright = (m === 2 ? 1 + push * 1.6 * p.glow : 1) * 1.25
+    emit(p, out, x2 * 0.92, y2 * 0.92, 0.45 + z3 * 1.5, size, bright, rad > 1 ? 1 : rad, push)
   }
 }

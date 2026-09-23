@@ -16,7 +16,8 @@ var schema = [
       { value: "ring",   label: "Ring",   tooltip: "Your waveform wrapped into a circle" },
       { value: "vortex", label: "Vortex", tooltip: "Spiral galaxy that spins up as you talk" },
       { value: "burst",  label: "Burst",  tooltip: "Rays that shoot out with each syllable" },
-      { value: "swarm",  label: "Swarm",  tooltip: "Fireflies that scatter and speed up" }
+      { value: "swarm",  label: "Swarm",  tooltip: "Fireflies that scatter and speed up" },
+      { value: "logo",   label: "Logo",   tooltip: "The square Omarchy logo, breathing apart as you speak" }
     ] },
   { key: "size", group: "Look", type: "number", def: 320, min: 120, max: 800, step: 10, label: "Size", unit: "px" },
   { key: "dotCount", group: "Look", type: "number", def: 3000, min: 200, max: 8000, step: 100, label: "Dots" },
@@ -100,6 +101,8 @@ var presets = [
     values: { pattern: "vortex", colorMode: "gradient", color: "#7aa2ff", color2: "#ff7ad9", dotCount: 3600, movement: 1.1, spinSpeed: 1.0 } },
   { id: "calm", label: "Calm",
     values: { pattern: "sphere", movement: 0.6, growth: 0.6, glow: 0.8, turbulence: 0.5, spinSpeed: 0.5, releaseMs: 320, attackMs: 40 } },
+  { id: "omarchy", label: "Omarchy",
+    values: { pattern: "logo", colorMode: "theme", dotCount: 3200, movement: 1.0, growth: 0.8, glow: 1.2, turbulence: 0.6, spinSpeed: 0.6 } },
   { id: "party", label: "Party",
     values: { pattern: "burst", colorMode: "rainbow", rainbowSpeed: 0.6, movement: 1.8, glow: 2.0, growth: 1.4, releaseMs: 90 } }
 ]

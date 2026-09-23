@@ -9,8 +9,9 @@ it with your voice in real time.
 - **No perceptible lag.** The mic is metered straight from PipeWire, once per
   audio quantum (~21 ms), and loudness rises on the very next frame. There is
   no smoothing on the way up and no delay line unless you ask for one.
-- **Six patterns.** Nebula, Sphere, Ring (your waveform wrapped into a
-  circle), Vortex, Burst and Swarm.
+- **Seven patterns.** Nebula, Sphere, Ring (your waveform wrapped into a
+  circle), Vortex, Burst, Swarm, and Logo: the square Omarchy logo, which
+  breathes apart as you speak.
 - **Your colors.** Follow the theme, or pick a solid color, a gradient, a
   color that shifts with loudness, or a slowly turning rainbow.
 - **Tunable movement and sensitivity**, from a settings window where the orb
@@ -73,7 +74,7 @@ Other commands:
 | Command | Does |
 |---|---|
 | `omarchy-shell speech-orb preview` | Show the orb on your live mic for 20 s (run again to stop) |
-| `omarchy-shell speech-orb preset <name>` | `snappy`, `jarvis`, `waveform`, `galaxy`, `calm` or `party` |
+| `omarchy-shell speech-orb preset <name>` | `snappy`, `jarvis`, `waveform`, `galaxy`, `calm`, `omarchy` or `party` |
 | `omarchy-shell speech-orb set <key> <value>` | Change one setting, e.g. `set movement 1.6` |
 | `omarchy-shell speech-orb reset` | Back to defaults |
 | `omarchy-shell speech-orb status` | JSON: state, mic, live level, non-default settings |
@@ -115,7 +116,7 @@ to the file apply as soon as you save it:
 | Key | Default | Range / meaning |
 |---|---|---|
 | **Look** | | |
-| `pattern` | `"nebula"` | `nebula`, `sphere`, `ring`, `vortex`, `burst`, `swarm` — Pattern |
+| `pattern` | `"nebula"` | `nebula`, `sphere`, `ring`, `vortex`, `burst`, `swarm`, `logo` — Pattern |
 | `size` | `320` | 120 – 800 px — Size |
 | `dotCount` | `3000` | 200 – 8000 — Dots |
 | `dotSize` | `1` | 0.5 – 4 × — Dot size |
@@ -212,7 +213,7 @@ The second line brings back voxtype's own display. Restart voxtype afterwards.
 ## Development
 
 ```sh
-node --test tests/                         # settings, level maths, all six patterns
+node --test tests/                         # settings, level math, every pattern
 qml dev/preview.qml                        # the orb alone, on synthetic speech
 qml dev/preview.qml -- pattern=ring step   # any setting, or a hard on/off test signal
 ```
