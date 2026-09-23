@@ -14,7 +14,7 @@
 // off every bin holds the live level; with ripple on, bin r holds the level as
 // it was r/(bins-1) * ripple ms ago, so loudness leaves the core and travels
 // outward. Patterns look a dot's bin up from its *live* distance from the
-// centre. Keying on a rest radius instead makes dots on elliptical paths answer
+// center. Keying on a rest radius instead makes dots on elliptical paths answer
 // late while sitting in the middle, which smears the wave away.
 
 var LUT_SIZE = 4096
@@ -41,7 +41,7 @@ var names = ["nebula", "sphere", "ring", "vortex", "burst", "swarm", "logo"]
 // (/usr/share/pixmaps/omarchy.png): every 20 px cell of it is uniformly inside
 // or outside the mark, so this 15x15 grid is exact, not a tracing. Row 0 is
 // the top. The mark is the icon's painted area -- the outer frame and inner
-// bracket around a hollow centre; the transparent area is its negative.
+// bracket around a hollow center; the transparent area is its negative.
 var LOGO = [
   "###############",
   "#......#......#",
@@ -303,7 +303,7 @@ function nebula(st, p, out) {
     var ax = st.semiA[i] * S[(th + Q) & M]
     var ay = st.semiB[i] * S[th & M]
     // Rotations preserve length, so the in-plane distance is already the
-    // dot's true distance from the centre.
+    // dot's true distance from the center.
     var rad = Math.sqrt(ax * ax + ay * ay)
     var push = LF[bin(p, rad)] * st.answer[i]
 
@@ -334,7 +334,7 @@ function sphere(st, p, out) {
   for (var i = 0; i < N; i++) {
     var nx = st.nx[i], ny = st.ny[i], nz = st.nz[i], m = st.mode[i]
     // With ripple on, the wave sweeps pole to pole rather than outward --
-    // every point on a shell is the same distance from the centre.
+    // every point on a shell is the same distance from the center.
     var push = LF[bin(p, (1 - ny) * 0.5)] * st.answer[i]
     var wob = turb * 0.07 * (sn(ny * 3.1 + t * 0.7) + 0.5 * sn(nx * 5.3 - t * 1.1)
                              + 0.25 * sn(nz * 9.7 + t * 1.9))
@@ -447,7 +447,7 @@ function swarm(st, p, out) {
 }
 
 // The square Omarchy logo. It sways rather than spins -- a flat mark turned
-// edge-on would vanish -- and speaking pushes its pieces out from the centre,
+// edge-on would vanish -- and speaking pushes its pieces out from the center,
 // so the gaps in the frame open up and the logo breathes apart with your
 // voice, while each dot also sparkles off along its own direction.
 function logo(st, p, out) {

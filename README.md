@@ -4,7 +4,7 @@ An [Omarchy](https://omarchy.org) shell plugin that shows a particle orb while
 you dictate with [voxtype](https://github.com/peteonrails/voxtype), and moves
 it with your voice in real time.
 
-![Speech Orb: four patterns (Galaxy, Party, Waveform, Calm) on a plain terminal, and the settings window with its live orb](preview.png)
+![Speech Orb: the Logo, Galaxy, Party and Waveform patterns on a plain background, and the settings window beside a live Logo orb](preview.png)
 
 - **No perceptible lag.** The mic is metered straight from PipeWire, once per
   audio quantum (~21 ms), and loudness rises on the very next frame. There is
@@ -86,10 +86,26 @@ or while the settings window or a preview is up.
 
 | | |
 |---|---|
+| ![Logo pattern in the theme color: the square Omarchy logo drawn in dots, hollow center and all](screenshots/logo.png) | ![Logo pattern with a cream-to-gray gradient](screenshots/logo-cream.png) |
 | ![Galaxy preset: a pink-to-blue gradient vortex](screenshots/galaxy.png) | ![Party preset: a rainbow burst](screenshots/party.png) |
 | ![Waveform preset: the ring pattern](screenshots/waveform.png) | ![Calm preset: a slow sphere](screenshots/calm.png) |
 
-![The settings window beside the live orb](screenshots/settings.png)
+![The settings window, with the Omarchy preset and Logo pattern selected, beside the live orb](screenshots/settings.png)
+
+### The Logo pattern
+
+Logo draws the square Omarchy mark in dots: the outer frame, the inner
+bracket and the hollow center. It's taken cell by cell from Omarchy's own icon,
+so it's the real shape, not a tracing. When you're quiet it holds the logo
+still, apart from a gentle sway. When you speak, the frame and inner lines push
+out from the center, so the gaps open up and the logo breathes apart with your
+voice, then settles back as you pause. It works with every color mode. Pick
+it from **Pattern** in the settings, or use the **Omarchy** preset for the logo
+in your theme color:
+
+```sh
+omarchy-shell speech-orb preset omarchy
+```
 
 ## Configure
 
@@ -177,7 +193,7 @@ being mapped through.
 - **`turbulence`**: the ambient drift, which runs regardless of volume.
 - **`spinSpeed`**: how fast the orb turns. Set it to 0 to stop it, or make it
   negative to reverse it.
-- **`ripple`**: how long loudness takes to travel from the centre outward. At
+- **`ripple`**: how long loudness takes to travel from the center outward. At
   0 the whole orb answers at once. The `jarvis` preset sets it to 340 ms for a
   rolling wave.
 - **`attackMs`** and **`releaseMs`**: how quickly the level rises and falls.

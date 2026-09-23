@@ -23,13 +23,21 @@ Window {
   property bool stepMode: args.indexOf("step") >= 0
   property string shot: ""
   property var overrides: ({})
+  // Harness-only options: bg=#rrggbb, w=/h= window size, accent=#rrggbb
+  // stands in for the Omarchy theme accent.
+  property color bgColor: "#12151a"
+  property color accent: "#7daea3"
 
   Component.onCompleted: {
     var o = {}
     for (var i = 0; i < args.length; i++) {
-      var m = /^([A-Za-z]+)=(.*)$/.exec(args[i])
+      var m = /^([A-Za-z][A-Za-z0-9]*)=(.*)$/.exec(args[i])
       if (!m) continue
       if (m[1] === "shot") { shot = m[2]; continue }
+      if (m[1] === "bg") { bgColor = m[2]; continue }
+      if (m[1] === "accent") { accent = m[2]; continue }
+      if (m[1] === "w") { width = Number(m[2]); continue }
+      if (m[1] === "h") { height = Number(m[2]); continue }
       var v = m[2]
       if (v === "true") v = true; else if (v === "false") v = false
       else if (/^-?[0-9.]+$/.test(v)) v = Number(v)
@@ -39,14 +47,15 @@ Window {
   }
 
   // grabToImage skips the window color, so give shots a real background.
-  Rectangle { anchors.fill: parent; color: "#12151a" }
+  Rectangle { anchors.fill: parent; color: win.bgColor }
 
   OrbView {
     id: orb
-    width: win.width - 60
-    height: win.height - 60
+    width: Math.min(win.width, win.height) - 60
+    height: Math.min(win.width, win.height) - 60
     anchors.centerIn: parent
     settings: Settings.resolve(win.overrides)
+    themeAccent: win.accent
     mode: "listening"
   }
 

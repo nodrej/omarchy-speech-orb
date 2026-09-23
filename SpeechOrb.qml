@@ -263,8 +263,8 @@ Item {
     implicitWidth: root.settings.size
     implicitHeight: root.settings.size + root.labelRoom
 
-    // Layer-shell centres on any axis left unanchored. A sideways nudge on a
-    // centred orb needs an explicit left margin instead.
+    // Layer-shell centers on any axis left unanchored. A sideways nudge on a
+    // centerd orb needs an explicit left margin instead.
     anchors.top: atTop
     anchors.bottom: atBottom
     anchors.left: atLeft || (hCentered && root.settings.offsetX !== 0)

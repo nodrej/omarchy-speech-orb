@@ -6,7 +6,7 @@
   "author": "nodrej",
   "license": "MIT",
   "repository": "https://github.com/nodrej/omarchy-speech-orb",
-  "description": "A particle orb that appears while you dictate with voxtype and moves with your voice in real time. Six patterns, custom colors, and adjustable movement and mic sensitivity from a live settings window.",
+  "description": "A particle orb that appears while you dictate with voxtype and moves with your voice in real time. Seven patterns including the square Omarchy logo, custom colors, and adjustable movement and mic sensitivity from a live settings window.",
   "kinds": [
     "service",
     "bar-widget"
