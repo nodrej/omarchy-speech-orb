@@ -40,23 +40,24 @@ var names = ["nebula", "sphere", "ring", "vortex", "burst", "swarm", "logo"]
 // The square Omarchy logo, read cell by cell off the 300x300 app icon
 // (/usr/share/pixmaps/omarchy.png): every 20 px cell of it is uniformly inside
 // or outside the mark, so this 15x15 grid is exact, not a tracing. Row 0 is
-// the top.
+// the top. The mark is the icon's painted area -- the outer frame and inner
+// bracket around a hollow centre; the transparent area is its negative.
 var LOGO = [
-  "...............",
-  ".######.######.",
-  ".#......###..#.",
-  ".#.#########.#.",
-  ".#.#########.#.",
-  ".#.#########.#.",
-  ".#.#########.#.",
-  "...#########.#.",
-  ".#.#########.#.",
-  ".#.#########.#.",
-  ".#.#########.#.",
-  ".#.#########.#.",
-  ".#...........#.",
-  ".######.######.",
-  "........#......"
+  "###############",
+  "#......#......#",
+  "#.######...##.#",
+  "#.#.........#.#",
+  "#.#.........#.#",
+  "#.#.........#.#",
+  "#.#.........#.#",
+  "###.........#.#",
+  "#.#.........#.#",
+  "#.#.........#.#",
+  "#.#.........#.#",
+  "#.#.........#.#",
+  "#.###########.#",
+  "#......#......#",
+  "########.######"
 ]
 
 // Seeded so a pattern looks the same every time it appears, and so tests are
