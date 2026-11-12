@@ -159,7 +159,10 @@ Item {
     interval: 2000
     running: true
     repeat: true
-    onTriggered: { stateFile.reload(); suppressedFile.reload(); swSocketFile.reload() }
+    onTriggered: {
+      stateFile.reload(); suppressedFile.reload(); swSocketFile.reload()
+      if (root.settings.followSuperwhisper && root.swAvailable) swAudioSocket.connected = true
+    }
   }
 
   // ---- Superwhisper --------------------------------------------------------
@@ -174,6 +177,10 @@ Item {
   property string swPhase: "idle"
   property string swDevice: ""
   property double _swSentAt: 0
+  // Superwhisper's own recording visualization. The orb stands in for it only
+  // when it is switched off (Visualization "Off", shown as "Speech Orb" with
+  // the optional panel patch), so the two never draw at once. Unset = on.
+  property bool swOwnIndicator: true
   property double _swRetryAt: 0
 
   function _swReset() { swPhase = "idle"; swDevice = "" }
@@ -224,6 +231,28 @@ Item {
     }
   }
 
+  // Read on the slow 2 s timer: it only changes when the user changes it.
+  Socket {
+    id: swAudioSocket
+    path: root.swSocketPath
+    parser: SplitParser {
+      onRead: data => {
+        swAudioSocket.connected = false
+        try {
+          var cfg = JSON.parse(data).config || {}
+          root.swOwnIndicator = cfg.showRecordingIndicator !== false
+        } catch (e) {}
+      }
+    }
+    onConnectedChanged: {
+      if (connected) {
+        write('{"version":1,"command":"audio_get"}\n')
+        flush()
+      }
+    }
+    onError: swAudioSocket.connected = false
+  }
+
   Timer {
     interval: 100
     repeat: true
@@ -265,7 +294,7 @@ Item {
       if (s === "recording" || s === "streaming") return "listening"
       if (s === "transcribing" && settings.showWhenTranscribing) return "transcribing"
     }
-    var sw = settings.followSuperwhisper ? swPhase : "idle"
+    var sw = settings.followSuperwhisper && !swOwnIndicator ? swPhase : "idle"
     if (sw === "recording") return "listening"
     if ((sw === "stopping" || sw === "transcribing") && settings.showWhenTranscribing) return "transcribing"
     return previewing ? "listening" : "idle"
@@ -434,6 +463,7 @@ Item {
         mode: root.mode,
         voxtype: root.vxState,
         superwhisper: root.swAvailable ? root.swPhase : null,
+        superwhisperOwnIndicator: root.swAvailable ? root.swOwnIndicator : null,
         mic: root.micNode ? root.micNode.name : null,
         metering: root.metering,
         level: Math.round(orb.level * 1000) / 1000,

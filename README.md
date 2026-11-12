@@ -42,9 +42,10 @@ get two:
 superwhisper audio set showRecordingIndicator false
 ```
 
-(or pick **Off** under Visualization in Superwhisper's bar panel). To keep
-Superwhisper's own visualization instead, turn off **Show for Superwhisper** in
-the orb's settings.
+(or pick **Off** under Visualization in Superwhisper's settings). The orb stands
+in only while that is off, so switching Superwhisper back to Edge glow or Pill
+hides the orb again. To never show it for Superwhisper, turn off **Show for
+Superwhisper** in the orb's settings.
 
 ### Requirements
 
@@ -185,7 +186,7 @@ to the file apply as soon as you save it:
 | `offsetX` | `0` | -1200 – 1200 px — Nudge sideways |
 | `monitor` | `""` | text — Output name such as DP-1. Empty follows the focused monitor |
 | `showWhenTranscribing` | `true` | `true` / `false` — Stay up while transcribing |
-| `followSuperwhisper` | `true` | `true` / `false` — Also appear while Superwhisper dictates. Set Superwhisper's Visualization to Off |
+| `followSuperwhisper` | `true` | `true` / `false` — Appear while Superwhisper dictates, when its Visualization is Off (or Speech Orb) |
 | `barIcon` | `true` | `true` / `false` — Click it for these settings. Hidden, use: omarchy-shell speech-orb settings |
 | `fadeMs` | `140` | 0 – 1000 ms — Fade |
 

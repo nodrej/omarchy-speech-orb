@@ -84,7 +84,7 @@ var schema = [
     hint: "Output name such as DP-1. Empty follows the focused monitor" },
   { key: "showWhenTranscribing", group: "Placement", type: "bool", def: true, label: "Stay up while transcribing" },
   { key: "followSuperwhisper", group: "Placement", type: "bool", def: true, label: "Show for Superwhisper",
-    hint: "Also appear while Superwhisper dictates. Set Superwhisper's Visualization to Off" },
+    hint: "Appear while Superwhisper dictates, when its Visualization is Off (or Speech Orb)" },
   { key: "barIcon", group: "Placement", type: "bool", def: true, label: "Show icon in the bar",
     hint: "Click it for these settings. Hidden, use: omarchy-shell speech-orb settings" },
   { key: "fadeMs", group: "Placement", type: "number", def: 140, min: 0, max: 1000, step: 10, label: "Fade", unit: "ms" }
