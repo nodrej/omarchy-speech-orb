@@ -159,7 +159,85 @@ Item {
     interval: 2000
     running: true
     repeat: true
-    onTriggered: { stateFile.reload(); suppressedFile.reload() }
+    onTriggered: { stateFile.reload(); suppressedFile.reload(); swSocketFile.reload() }
+  }
+
+  // ---- Superwhisper --------------------------------------------------------
+  //
+  // Superwhisper has no state file; its daemon answers one JSON line per
+  // connection on a control socket (`{"version":1,"command":"status"}` ->
+  // `phase`: idle | warming | recording | stopping | transcribing). A status
+  // call costs about 0.3 ms, so polling it 10x a second is cheap.
+
+  readonly property string swSocketPath: root.runtimeDir + "/superwhisper/control.sock"
+  property bool swAvailable: false
+  property string swPhase: "idle"
+  property string swDevice: ""
+  property double _swSentAt: 0
+  property double _swRetryAt: 0
+
+  function _swReset() { swPhase = "idle"; swDevice = "" }
+
+  // Loading a socket fails with NotAFile when it exists and FileNotFound when
+  // it does not -- a silent way to know the daemon is up, so the poller never
+  // spams the log with connection errors while Superwhisper is not running.
+  FileView {
+    id: swSocketFile
+    path: root.swSocketPath
+    printErrors: false
+    onLoaded: { root.swAvailable = false; root._swReset() }
+    onLoadFailed: error => {
+      root.swAvailable = error === FileViewError.NotAFile
+      if (!root.swAvailable) root._swReset()
+    }
+  }
+
+  Socket {
+    id: swSocket
+    path: root.swSocketPath
+    parser: SplitParser {
+      onRead: data => {
+        // Hang up first: the daemon closes after one reply, and letting it
+        // close first logs a PeerClosedError on every poll.
+        swSocket.connected = false
+        try {
+          var r = JSON.parse(data)
+          root.swPhase = String(r.phase || "idle")
+          root.swDevice = String(r.recording_device || "")
+        } catch (e) {
+          root._swReset()
+        }
+      }
+    }
+    onConnectedChanged: {
+      if (connected) {
+        root._swSentAt = Date.now()
+        write('{"version":1,"command":"status"}\n')
+        flush()
+      }
+    }
+    // A stale socket (daemon gone): back off so it logs once per 5 s at most.
+    onError: {
+      swSocket.connected = false
+      root._swRetryAt = Date.now() + 5000
+      root._swReset()
+    }
+  }
+
+  Timer {
+    interval: 100
+    repeat: true
+    running: root.settings.followSuperwhisper && root.swAvailable
+    onRunningChanged: if (!running) { swSocket.connected = false; root._swReset() }
+    onTriggered: {
+      var now = Date.now()
+      if (swSocket.connected) {
+        if (now - root._swSentAt > 1000) swSocket.connected = false  // no reply
+        return
+      }
+      if (now < root._swRetryAt) return
+      swSocket.connected = true
+    }
   }
 
   // ---- what to show ------------------------------------------------------
@@ -187,6 +265,9 @@ Item {
       if (s === "recording" || s === "streaming") return "listening"
       if (s === "transcribing" && settings.showWhenTranscribing) return "transcribing"
     }
+    var sw = settings.followSuperwhisper ? swPhase : "idle"
+    if (sw === "recording") return "listening"
+    if ((sw === "stopping" || sw === "transcribing") && settings.showWhenTranscribing) return "transcribing"
     return previewing ? "listening" : "idle"
   }
 
@@ -194,6 +275,8 @@ Item {
 
   readonly property var micNode: {
     var want = settings.micNode
+    // No mic pinned: follow the one Superwhisper is recording from.
+    if ((!want || want.length === 0) && swPhase === "recording") want = swDevice
     if (want && want.length > 0) {
       var nodes = Pipewire.nodes.values
       for (var i = 0; i < nodes.length; i++) {
@@ -350,6 +433,7 @@ Item {
       return JSON.stringify({
         mode: root.mode,
         voxtype: root.vxState,
+        superwhisper: root.swAvailable ? root.swPhase : null,
         mic: root.micNode ? root.micNode.name : null,
         metering: root.metering,
         level: Math.round(orb.level * 1000) / 1000,

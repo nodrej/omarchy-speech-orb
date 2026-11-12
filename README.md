@@ -1,8 +1,9 @@
 # Speech Orb
 
 An [Omarchy](https://omarchy.org) shell plugin that shows a particle orb while
-you dictate with [voxtype](https://github.com/peteonrails/voxtype), and moves
-it with your voice in real time.
+you dictate with [voxtype](https://github.com/peteonrails/voxtype) or
+[Superwhisper](https://superwhisper.com), and moves it with your voice in real
+time.
 
 ![Speech Orb: the Logo, Galaxy, Party and Waveform patterns on a plain background, and the settings window beside a live Logo orb](preview.png)
 
@@ -31,12 +32,29 @@ voxtype config set osd.enabled false
 
 Restart the voxtype daemon for that to take effect (or log out and back in).
 
+### With Superwhisper
+
+The orb also appears while Superwhisper is recording, and breathes while it
+transcribes. Turn Superwhisper's own recording visualization off so you don't
+get two:
+
+```sh
+superwhisper audio set showRecordingIndicator false
+```
+
+(or pick **Off** under Visualization in Superwhisper's bar panel). To keep
+Superwhisper's own visualization instead, turn off **Show for Superwhisper** in
+the orb's settings.
+
 ### Requirements
 
 - Omarchy with the Quickshell shell (Quickshell 0.3 or newer, for
   `PwNodePeakMonitor`).
-- voxtype, which Omarchy installs for dictation. The orb reads its state file at
-  `$XDG_RUNTIME_DIR/voxtype/state`; nothing else about voxtype is touched.
+- voxtype, which Omarchy installs for dictation, and/or Superwhisper. The orb
+  reads voxtype's state file at `$XDG_RUNTIME_DIR/voxtype/state`, and asks
+  Superwhisper's control socket (`$XDG_RUNTIME_DIR/superwhisper/control.sock`)
+  for its `status` ten times a second while that socket exists. Nothing else
+  about either is touched.
 - PipeWire.
 
 No other packages, scripts or binaries.
@@ -44,7 +62,7 @@ No other packages, scripts or binaries.
 ## Usage
 
 Dictate as usual (Omarchy binds this to <kbd>F9</kbd>). The orb fades in while
-voxtype is listening, breathes while it transcribes, and fades out when it is
+voxtype or Superwhisper is listening, breathes while it transcribes, and fades out when it is
 done. It sits above everything, never takes focus, and clicks pass straight
 through it.
 
@@ -167,6 +185,7 @@ to the file apply as soon as you save it:
 | `offsetX` | `0` | -1200 – 1200 px — Nudge sideways |
 | `monitor` | `""` | text — Output name such as DP-1. Empty follows the focused monitor |
 | `showWhenTranscribing` | `true` | `true` / `false` — Stay up while transcribing |
+| `followSuperwhisper` | `true` | `true` / `false` — Also appear while Superwhisper dictates. Set Superwhisper's Visualization to Off |
 | `barIcon` | `true` | `true` / `false` — Click it for these settings. Hidden, use: omarchy-shell speech-orb settings |
 | `fadeMs` | `140` | 0 – 1000 ms — Fade |
 
@@ -225,6 +244,8 @@ voxtype config set osd.enabled true
 ```
 
 The second line brings back voxtype's own display. Restart voxtype afterwards.
+With Superwhisper, bring its visualization back with
+`superwhisper audio set showRecordingIndicator true`.
 
 ## Development
 
